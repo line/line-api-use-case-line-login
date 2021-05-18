@@ -1,0 +1,306 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'LINE-Login
+
+Sample SAM Template for LINE-Login-Sample
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: !FindInMap [EnvironmentMap, !Ref Environment, LambdaMemorySize]
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+Mappings:
+  EnvironmentMap:
+    dev:
+      LineChannelSecret: xxx
+      LineChannelAccessToken: xxx
+      LIFFChannelId: LIFFChannelId
+      LoginUsersInfoDBName: DyanmoDB Name
+      MessageOption: push
+      FrontS3BucketName: bucket name
+      LayerVersion: layer version
+      LambdaMemorySize: 128 to 3008
+      # TTL is True:Reservation Data will be deleted at the specified date, False:Data will not be deleted
+      TTL: True
+      # Set day to delete data
+      # If you set TTL: True, data will be deleted in the period specified below.
+      TTLDay: 1
+      # ### ACCESS LOG SETTING ###
+      # LogS3Bucket: bucket name for access log
+      # LogFilePrefix: log file prefix
+      # ### ACCESS LOG SETTING ###
+    prod:
+      LineChannelSecret: xxx
+      LineChannelAccessToken: xxx
+      LIFFChannelId: LIFFChannelId
+      LoginUsersInfoDBName: DyanmoDB Name
+      MessageOption: push
+      FrontS3BucketName: bucket name
+      LayerVersion: layer version
+      LambdaMemorySize: 128 to 3008
+      TTL: False or True
+      TTLDay: Data Delete Day
+      # ### ACCESS LOG SETTING ###
+      # LogS3Bucket: bucket name for access log
+      # LogFilePrefix: log file prefix
+      # ### ACCESS LOG SETTING ###
+Resources:
+  LineLogin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: line_login/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Layers:
+        - !Join 
+          - ":"
+          - - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer"
+            - !ImportValue LineLoginLayerDev
+            - !FindInMap [EnvironmentMap, !Ref Environment, LayerVersion]
+      Environment:
+        Variables:
+          LIFF_CHANNEL_ID:
+            Fn::FindInMap:
+            - EnvironmentMap
+            - Ref: Environment
+            - LIFFChannelId
+          LOGIN_USERS_INFO_DB_NAME:
+            Fn::FindInMap:
+            - EnvironmentMap
+            - Ref: Environment
+            - LoginUsersInfoDBName
+          LINE_CHANNEL_ACCESS_TOKEN:
+            Fn::FindInMap:
+            - EnvironmentMap
+            - Ref: Environment
+            - LineChannelAccessToken
+          TTL_DAY: !FindInMap [EnvironmentMap, !Ref Environment, TTLDay]
+      Events:
+        LineLogin:
+          Type: Api
+          Properties:
+            Path: /line_login
+            Method: post
+            RestApiId:
+              Ref: LineLoginApiGatewayApi
+      Role:
+        !GetAtt LambdaFunctionRole.Arn
+  LineLoginApiGatewayApi:
+    Properties:
+      StageName: !Ref Environment
+      OpenApiVersion: 3.0.2
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'Origin, Authorization, Accept, X-Requested-With, Content-Type, x-amz-date, X-Amz-Security-Token'"
+        AllowMethods: "'GET, POST, OPTIONS'"
+    Type: AWS::Serverless::Api
+  SentUserInfo:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      TableName:
+        Fn::FindInMap:
+        - EnvironmentMap
+        - Ref: Environment
+        - LoginUsersInfoDBName
+      TimeToLiveSpecification:
+        AttributeName: expirationDate
+        # True:Reservation Data will be deleted at the specified date, False:Data will not be deleted
+        Enabled: !FindInMap [EnvironmentMap, !Ref Environment, TTL]
+  LambdaFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: GetAndPutDataToDynamoDB
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:GetItem"
+            Resource:
+            - !GetAtt SentUserInfo.Arn
+      - PolicyName: PutLogToCloudWatch
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:CreateLogGroup
+            Resource:
+            - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}*:*
+  FrontBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::FindInMap:
+        - EnvironmentMap
+        - Ref: Environment
+        - FrontS3BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration: 
+        - 
+          ServerSideEncryptionByDefault: 
+            SSEAlgorithm: "AES256"
+      # ### ACCESS LOG SETTING ###
+      # LoggingConfiguration: 
+      #   DestinationBucketName: !FindInMap [EnvironmentMap, !Ref Environment, LogS3Bucket]
+      #   LogFilePrefix: !FindInMap [EnvironmentMap, !Ref Environment, LogFilePrefix]
+      # ### ACCESS LOG SETTING ###
+  AssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: FrontBucket
+      PolicyDocument:
+        Version: '2008-10-17'
+        Id: PolicyForCloudFrontPrivateContent
+        Statement:
+        - Action: s3:GetObject
+          Sid: 1
+          Effect: Allow
+          Resource:
+            Fn::Sub: arn:aws:s3:::${FrontBucket}/*
+          Principal:
+            AWS:
+              Fn::Sub: arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
+                ${CloudFrontOriginAccessIdentity}
+          Condition: 
+            Bool: 
+              "aws:SecureTransport": "true"
+        - Action: s3:*
+          Sid: 2
+          Effect: Deny
+          Principal: "*"
+          Resource: !Sub arn:aws:s3:::${FrontBucket}
+          Condition: 
+            Bool: 
+              "aws:SecureTransport": "false"
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - ConnectionAttempts: 3
+          ConnectionTimeout: 10
+          DomainName:
+            Fn::GetAtt:
+            - FrontBucket
+            - DomainName
+          Id:
+            Fn::Sub: S3-${FrontBucket}
+          OriginPath: ''
+          S3OriginConfig:
+            OriginAccessIdentity:
+              Fn::Sub: origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+        OriginGroups:
+          Quantity: 0
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - HEAD
+          - DELETE
+          - POST
+          - GET
+          - OPTIONS
+          - PUT
+          - PATCH
+          CachedMethods:
+          - HEAD
+          - GET
+          Compress: false
+          DefaultTTL: 0
+          ForwardedValues:
+            Cookies:
+              Forward: none
+            QueryString: false
+          MaxTTL: 0
+          MinTTL: 0
+          SmoothStreaming: false
+          TargetOriginId:
+            Fn::Sub: S3-${FrontBucket}
+          ViewerProtocolPolicy: redirect-to-https
+        Comment: ''
+        PriceClass: PriceClass_All
+        Enabled: true
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+          MinimumProtocolVersion: TLSv1
+        Restrictions:
+          GeoRestriction:
+            RestrictionType: none
+        HttpVersion: http2
+        DefaultRootObject: index.html
+        IPV6Enabled: true
+        Logging:
+          Bucket:
+            Fn::GetAtt:
+            - FrontBucket
+            - DomainName
+          Prefix: log
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment:
+          Ref: AWS::StackName
+Outputs:
+  LineLoginApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${LineLoginApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/line_login/
+  LineLoginFunction:
+    Description: LINE Login Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - LineLogin
+      - Arn
+  LineLoginFunctionIamRole:
+    Description: Implicit IAM Role created for LineLogin function
+    Value:
+      Fn::GetAtt:
+      - LambdaFunctionRole
+      - Arn
+  CloudFrontDomainName:
+    Description: CloudFront for LINE Login Sample
+    Value:
+      Fn::GetAtt:
+      - CloudFrontDistribution
+      - DomainName
+  S3:
+    Description: S3 Bucket for Frontend
+    Value:
+      Ref: FrontBucket

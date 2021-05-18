@@ -1,0 +1,203 @@
+<!doctype html>
+<html class="no-js">
+<head>
+	<meta charset="utf-8" />
+	<meta name="robots" content="noindex,nofollow" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimal-ui">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="cache-control" content="no-cache, no-store">
+	<title>LINE Application</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+		}
+		.container {
+			margin: 8px;
+			min-height: 100vh;
+		}
+		.box {
+			text-align: center;
+			margin: 0 auto;
+		}
+		.message {
+			color: #00ba00;
+			margin: 72px auto;
+			text-shadow: 2px 3px 3px #fff;
+		}
+		img:hover {
+			cursor: pointer;
+			opacity: 0.6;
+			transition-duration: 0.3s;
+		}
+		img:active {
+			transform: scale(0.96);
+		}
+		.note {
+			max-width: 600px; 
+			margin: 0 auto;
+			padding: 0 12px 0 12px;
+			font-size: 0.75em;
+			color: #7c7c7c; 
+			text-align: left;
+		}
+		/* Footer */
+		footer {
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			height: 60px; 
+			margin: 0;
+			padding: 0;
+			text-align: center;
+			background-color: #00B900;
+		}
+		.footer-button {
+			width: 100%;
+			height: 100%;
+			border: none;
+			color: white;
+			background-color: transparent;
+			text-align: center;
+			outline: none;
+		}
+		.footer-button-text {
+			font-size: 23px;
+			font-weight: bold;
+			letter-spacing:0.06em;			
+		}
+	</style>
+</head>
+<body style="background:#fff;">
+<div class="containter">
+	<div style="margin-bottom:24px;"></div>
+	<div style="width:100%;">
+		<div style="margin:0 auto;">
+			<h1 style="text-align:center;">
+				<strong class="message" style="font-size:42px;"><span id="title"></span></strong>
+			</h1>
+		</div>
+	</div>
+	<div class="box">
+		<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAS8AAABYCAYAAACkjnEVAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3NpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDIxIDc5LjE1NDkxMSwgMjAxMy8xMC8yOS0xMTo0NzoxNiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDphNTk0YTczYS0zNzEzLTRhMjktODgyYi0xYjg0ZWJkMjM5NGQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RkM1MjQ4MzU5M0VFMTFFNDk1OEFENjBBMUJBQjkyMzkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RkM1MjQ4MzQ5M0VFMTFFNDk1OEFENjBBMUJBQjkyMzkiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChNYWNpbnRvc2gpIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MjcyNzhjZDktYmE0ZC00Yjk0LTk2MmYtMzMyZDY3YmJlYWZjIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOmE1OTRhNzNhLTM3MTMtNGEyOS04ODJiLTFiODRlYmQyMzk0ZCIvPiA8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" onclick="login()">
+	</div>
+	<div class="box" style="width:100%; line-height:1.2em; margin-top:20px;">
+		<div class="note">
+			<span id="msg001"></span>
+			<span id="msg002"></span><br/>
+			<br />
+			<span id="msg003"></span>
+		</div>
+	</div>
+</div>
+<footer>
+	<button class="footer-button" onclick="back()">
+		<span class="footer-button-text"><span id="msg004"></span></span>
+	</button>
+</footer>
+<script src="/line/js/locale.js"></script>
+<script type="text/javascript">
+/**
+* ログイン処理
+* 
+*/
+function login()
+{
+	location.href = "/?lang=" + getLocale();
+}
+
+/**
+* LINE API Use Caseページへ戻る 
+* 
+*/
+function back()
+{
+	var locale = getLocale();
+	window.open("https://lineapiusecase.com/" + locale + "/api/login.html");
+}
+
+/**
+* ローカルストレージ ロケール設定
+* 
+* @param {string} ロケール値
+*/
+function setLocale(value)
+{
+	localStorage.setItem("liff-login-locale", value);
+	setResource(window.line.locale[value]);
+}
+
+/**
+* ローカルストレージ ロケール取得
+* 
+* @returns {string} ロケール値
+*/
+function getLocale()
+{
+	return localStorage.getItem("liff-login-locale");
+}
+
+/**
+* 言語リソース設定
+* 
+* @param {Object} 言語リソース
+*/
+function setResource(resource)
+{
+	document.title = resource.title;
+	for (var id in resource.top) {
+		var span = document.getElementById(id);
+		if (span) {
+			span.innerHTML = resource.top[id];
+		}
+	}
+}
+
+/**
+* パラメーター取得
+* 
+* @returns {Object} パラメーター
+*/
+function getParameters()
+{
+	var ret = null;
+
+	var url = window.location.href;
+	if (url.indexOf("?") > 0) {
+		var map = {};
+		var params = url.split("?");
+		params = params[1];
+		params = params.split("&");
+		for (var i=0; i<params.length; i++) {
+			var param = params[i].split("=");
+			map[param[0]] = param[1];
+		}
+		ret = map;
+	}
+	return ret;
+}
+/**
+* 初期処理
+* 
+*/
+(function(){
+	var locale = getParameters();
+	if (locale && "lang" in locale) {
+		locale = locale.lang;
+	} else {
+		locale = getLocale();
+		if (!locale) {
+			setLocale("ja");
+			locale = "ja";
+		} else {
+			setLocale(locale);
+		}
+	}
+})();
+</script>
+</body>
+</html>
