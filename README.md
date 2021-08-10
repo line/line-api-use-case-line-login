@@ -5,8 +5,8 @@ LINEログインを導入すると、ユーザーは使い慣れたLINEを使用
 以下手順に従って、LINEログインのデモアプリケーションを構築してください。
 
 なお、このページで紹介しているソースコードの環境はAWSを利用しています。  
-※ ドキュメントなどの文言は日本語対応となっています。  
-※ This document is written in only Japanese for now. We’ll translate it later as soon as possible.
+
+※ [The English version document is here.](./docs/en/README_en.md)
 
 # Libraries
 ## Node.js
