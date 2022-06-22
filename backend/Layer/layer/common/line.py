@@ -120,7 +120,7 @@ def send_service_message(channel_access_token, template_name , params, notificat
 
 def get_profile(id_token, channel_id):
     """
-    プッシュメッセージ送信処理
+    プロフィール情報取得処理
 
     Parameters
     ----------

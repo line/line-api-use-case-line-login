@@ -50,12 +50,12 @@ Mac: https://www.python.jp/install/macos/index.html
 こちらの手順では、アプリケーション開発に必要な「LINEチャネル作成、バックエンド・フロントエンドの構築、動作確認」について説明します。
 以下リンク先の手順を参考にし、本番環境（AWS）とローカル環境の構築を行ってください。
 
-### [LINE チャネルの作成](./docs/liff-channel-create.md)
-### [バックエンドの構築](./docs/back-end-construction.md)
-### [本番（AWS）フロントエンド環境構築](./docs/front-end-construction.md)
-### [ローカルフロントエンド環境構築](./docs/front-end-development-environment.md)
+### [LINE チャネルの作成](./docs/jp/liff-channel-create.md)
+### [バックエンドの構築](./docs/jp/back-end-construction.md)
+### [本番（AWS）フロントエンド環境構築](./docs/jp/front-end-construction.md)
+### [ローカルフロントエンド環境構築](./docs/jp/front-end-development-environment.md)
 ***
-### [動作確認](./docs/validation.md)
+### [動作確認](./docs/jp/validation.md)
 ***
 # License
 LINELoginの全てのファイルは、条件なしで自由にご利用いただけます。
@@ -65,7 +65,7 @@ See [LICENSE](LICENSE) for more detail.(English)
 
 # How to contribute
 
-First of all, thank you so much for taking your time to contribute! LINE API Use Case Hair Salon is not very different from any other open source projects. It will be fantastic if you help us by doing any of the following:
+First of all, thank you so much for taking your time to contribute! LINE API Use Case Line Login is not very different from any other open source projects. It will be fantastic if you help us by doing any of the following:
 
 - File an issue in [the issue tracker](https://github.com/line/line-api-use-case-line-login/issues) to report bugs and propose new features and improvements.
 - Ask a question using [the issue tracker](https://github.com/line/line-api-use-case-line-login/issues).
