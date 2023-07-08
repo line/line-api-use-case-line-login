@@ -32,7 +32,7 @@
         "eslint-plugin-vue": "6.2.2",
         "font-awesome": "4.7.0",
         "material-design-icons-iconfont": "5.0.1",
-        "node-sass": "4.14.1",
+        "node-sass": "9.0.0",
         "sass-loader": "9.0.2",
         "vuedraggable": "2.24.1",
         "vuex-persistedstate": "3.0.1"
